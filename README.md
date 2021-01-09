@@ -1,2 +1,2 @@
 # USACO
-Mu USACO code for practice problem
+Mu USACO code for practice problems
