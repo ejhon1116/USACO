@@ -1,53 +1,47 @@
-import java.util.*;
 import java.io.*;
+import java.lang.reflect.Array;
+import java.util.*;
 
 public class BovineGenomics {
     public static void main(String[] args) throws IOException {
-        BufferedReader br = new BufferedReader(new FileReader("cownomics.in"));
-        FileWriter fw = new FileWriter("cownomics.out");
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        int cowNum = Integer.parseInt(st.nextToken());
-        int geneLength = Integer.parseInt(st.nextToken());
-        String[] cows = new String[cowNum * 2];
+        Scanner scan = new Scanner(new FileReader("USACO/src/.in/cownomics.in"));
+        int cows = scan.nextInt();
+        int length = scan.nextInt();
+        scan.nextLine();
 
-        // Puts all the cow genomes in one array
-        for (int i = 0; i < cowNum * 2; i++) {
-            cows[i] = br.readLine();
-        }
-
-        String[] spottyGene = new String[geneLength];
-        String[] plainGene = new String[geneLength];
-
-        // Splits the genomes and puts the spotty/plain ones in their respective arrays
-        for (int i = 0; i < geneLength; i++) {
-            String spotty = "";
-            String plain = "";
-            for (int n = 0; n < cowNum; n++) {
-                spotty += cows[n].charAt(i);
-                plain += cows[n + cowNum].charAt(i);
+        ArrayList<HashSet<Character>> spottyGene = new ArrayList<HashSet<Character>>();
+        for(int o = 0; o < cows; o++) {
+            String genome = scan.nextLine();
+            for(int i = 0; i < length; i++) {
+                HashSet<Character> temp = new HashSet<>();
+                if(spottyGene.size() > i) temp = spottyGene.get(i);
+                temp.add(genome.charAt(i));
+                if(o!=0) spottyGene.set(i, temp);
+                else spottyGene.add(i, temp);
             }
-            spottyGene[i] = spotty;
-            plainGene[i] = plain;
         }
 
-        System.out.println(Arrays.toString(cows));
-        System.out.println(Arrays.toString(spottyGene));
-        System.out.println(Arrays.toString(plainGene));
+        ArrayList<HashSet<Character>> plainGene = new ArrayList<HashSet<Character>>();
+        for(int o = 0; o < cows; o++) {
+            String genome = scan.nextLine();
+            for(int i = 0; i < length; i++) {
+                HashSet<Character> temp = new HashSet<>();
+                if(plainGene.size() > i) temp = plainGene.get(i);
+                temp.add(genome.charAt(i));
+                if(o!=0) plainGene.set(i, temp);
+                else plainGene.add(i, temp);
+            }
+        }
 
-        int count = 0;
-        for (int i = 0; i < geneLength; i++) {
-            boolean contains = false;
-            for (int n = 0; n < cowNum; n++) {
-                if (spottyGene[i].contains(plainGene[i].charAt(n) + "")) {
-                    contains = true;
+        System.out.println(spottyGene + "\n" + plainGene);
+        for(int i = 0; i < length; i++) {
+            boolean trapdoor = true;
+            for(char e : spottyGene.get(i)) {
+                if(plainGene.get(i).contains(e)) {
+                    trapdoor = false;
                 }
             }
-            if (!contains) {
-                count++;
-            }
+            if(trapdoor) System.out.println(spottyGene.get(i) + " " + i);
         }
-        fw.write(count + "");
-        fw.flush();
-        fw.close();
     }
 }

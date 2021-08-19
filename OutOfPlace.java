@@ -4,85 +4,73 @@ import java.util.*;
 public class OutOfPlace {
     public static void main(String[] args) throws IOException {
         Scanner scan = new Scanner(new FileReader("outofplace.in"));
-        int cowNum = scan.nextInt();
-        int[] heights = new int[cowNum];
+        ArrayList<Integer> input = new ArrayList<>();
 
-        for(int i = 0; i < cowNum; i++) {
-            heights[i] = scan.nextInt();
+        scan.nextInt();
+
+        for (int i = 0; scan.hasNextInt(); i++) {
+            int curr = scan.nextInt();
+            if (i > 0) {
+                if (input.get(input.size() - 1) != curr) {
+                    input.add(curr);
+                }
+            } else input.add(curr);
         }
+        int n = input.size();
 
-        int outPlaceInd = -1;
-        int direc = 0;
-        for(int i = 0; i < cowNum; i++) {
-            if(i == 0) {
-                if(heights[i] > heights[i+1]){
-                    outPlaceInd = i;
-                    direc = 1;
-                    break;
+        //Sorted input
+        ArrayList<Integer> sorted = (ArrayList<Integer>) input.clone();
+        Collections.sort(sorted);
+
+        //When direc = 1 means Bessie must move to the right. Direc = -1 means Bessie must move to the left
+        int direc = 1;
+
+        //Find Bessie
+        int bes = -1;
+        for (int i = 1; i < n - 1; i++) {
+            if (!(input.get(i - 1) <= input.get(i) && input.get(i) <= input.get(i + 1))) {
+                if (input.get(i - 1) <= input.get(i + 1)) {
+                    bes = i;
+                    if (input.get(i) < input.get(i - 1)) direc = -1;
+                    else direc = 1;
                 }
-            }
-
-            else if (i == cowNum-1) {
-                if(heights[i] < heights[i-1]) {
-                    outPlaceInd = i;
-                    direc = -1;
-                    break;
-                }
-            }
-
-            else if(heights[i] < heights[i + 1] && heights[i] < heights[i-1]) {
-                //System.out.println("test");
-                outPlaceInd = i;
-                direc = -1;
-
-            }
-
-            else if(heights[i] > heights[i + 1] && heights[i] > heights[i-1]) {
-                outPlaceInd = i;
-                direc = -1;
-
-            }
-        }
-        System.out.println(Arrays.toString(heights));
-
-        int swaps = 0;
-        if(direc == 1) {
-            while(heights[outPlaceInd] > heights[outPlaceInd + 1]) {
-                while(heights[outPlaceInd+1] == heights[outPlaceInd+2]) {
-                    heights = swap(heights, outPlaceInd, 1);
-                    outPlaceInd++;
-                }
-                heights = swap(heights, outPlaceInd, 1);
-                outPlaceInd++;
-                swaps++;
-                if(outPlaceInd == cowNum-1) break;
-
-            }
-        }
-        if(direc == -1) {
-            while(heights[outPlaceInd] < heights[outPlaceInd - 1]) {
-                while(heights[outPlaceInd-1] == heights[outPlaceInd-2]) {
-                    heights = swap(heights, outPlaceInd, -1);
-                    outPlaceInd--;
-                }
-                heights = swap(heights, outPlaceInd, -1);
-                outPlaceInd--;
-                swaps++;
-                if(outPlaceInd == 0) break;
             }
         }
 
-        PrintWriter pw = new PrintWriter("outofplace.out");
-        pw.println(swaps);
-        pw.flush();
-        pw.close();
+        //Check edge cases
 
-    }
+        if (input.get(n - 1) < input.get(n - 2)) {
+            bes = n - 1;
+            direc = -1;
+        }
 
-    public static int[] swap(int[] input, int index, int direc) {
-        int temp = input[index];
-        input[index] = input[index + direc];
-        input[index + direc] = temp;
-        return input;
+        if (input.get(0) > input.get(1)) {
+            bes = 0;
+            direc = 1;
+        }
+
+        //Where Bessie should end up
+        int swapTo = -1;
+
+        if (direc == 1) {
+            for (int i = 0; i < n; i++) {
+                if (sorted.get(i) == input.get(bes)) {
+                    swapTo = i;
+                }
+            }
+        } else {
+            for (int i = n - 1; i >= 0; i--) {
+                if (sorted.get(i) == input.get(bes)) {
+                    swapTo = i;
+                }
+            }
+        }
+
+        System.out.println(Math.abs(swapTo - bes));
+
+        FileWriter fw = new FileWriter("outofplace.out");
+        fw.write(Math.abs(swapTo - bes) + "");
+        fw.flush();
+        fw.close();
     }
 }
